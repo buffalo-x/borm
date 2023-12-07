@@ -1,11 +1,11 @@
 package bmod
 
 import (
-	"borm/bds"
-	"borm/bsql"
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/buffalo-x/borm/bds"
+	"github.com/buffalo-x/borm/bsql"
 	"reflect"
 	"strings"
 	"time"

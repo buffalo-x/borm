@@ -1,10 +1,10 @@
 package bmod
 
 import (
-	"borm/bds"
-	"borm/mdb"
 	"database/sql"
 	"errors"
+	"github.com/buffalo-x/borm/bds"
+	"github.com/buffalo-x/borm/mdb"
 )
 
 type ModDB struct {
