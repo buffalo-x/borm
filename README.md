@@ -50,13 +50,13 @@ We are trying to create a very simple orm framework using the go language that c
 
 2. Query table rows\
 	_var rs []TestTable\
-	modDb := bmod.Where("").Query(&rs)_\
+	modDb := bmod.Where("id>?",1).Query(&rs)_\
 	If everything is normal, you can see the data in rs. You can also use\
-	_err := bmod.Where("").Query(&rs).Error()_ to find if error occured or not.	
+	_err := bmod.Query(&rs).Error()_ to find if error occured or not.	
 
 3. Query one table row\
 	_var row TestTable\
-	_modDb := bmod.Where("").Query(&row)_
+	_modDb := bmod.Where("id=1").Query(&row)_
 
 4. About func Where\
 	_func (modDb *ModDB) Where(sqlStr string, args ...interface{}) (retModDb *ModDB)_,this func will create a *ModDB and set its where condition\
@@ -66,7 +66,7 @@ for example \
 5. Specify a datasource\
 	_func Db(dsName ...string) (retModDb *ModDB)_\
 	We can use it in this way.\
-	 _modDb := bmod.Db("ds1").Where("").Query(&rs)_\
+	 _modDb := bmod.Db("ds1").Query(&rs)_\
 	This will choose a datasource with name of "ds1"
 
 6. Create a database record\
