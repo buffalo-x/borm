@@ -106,17 +106,21 @@ bsql.CV is a map[string]interface{}
 
 13. Use bsql.Expr\
 _bmod.Model(tb).Update("col_int",bsql.Expr("col_int+?", 1))_\
-This means _update test_table set col_int=col_int+1
+This means\ update test_table set col_int=col_int+1
 
 14. Use sql.Rows as Output\
 _func (modDb *ModDB) Rows(columnList ...string) (*sql.Rows, error)_\
-Youcan use _bmod.Model(tb).Where("1=1").Rows()\
-or _bmod.Model(tb).Where("1=1").Rows("name,code")
+Youcan use\
+ _bmod.Model(tb).Where("1=1").Rows()\
+or\
+ _bmod.Model(tb).Where("1=1").Rows("name,code")
 
 15. Use sql.Row as Output\
 _func (modDb *ModDB) Row(columnList ...string) (*sql.Rows, error)_\
-Youcan use _bmod.Model(tb).Where("1=1").Row()\
-or _bmod.Model(tb).Where("id>?",2).Row("name,code")
+Youcan use\
+ _bmod.Model(tb).Where("1=1").Row()\
+or\
+ _bmod.Model(tb).Where("id>?",2).Row("name,code")
 
 	
 
@@ -127,7 +131,8 @@ We also have a traditional way to deal with database.
 	_var rs bsql.Rows\
 	genMod := bgen.Sql("select * from test_table where id>?", 1).Query(&rs)_\
 	If everything is normal, you can see the data in rs. You can also use\
-	_err := bgen.Sql("select * from test_table where id>?", 1).Query(&rs).Error()_ to find if error occured or not.
+	_err := bgen.Sql("select * from test_table where id>?", 1).Query(&rs).Error()_\
+     to find if error occured or not.
 
 2. Query table row\
 	_var rs bsql.Row\
