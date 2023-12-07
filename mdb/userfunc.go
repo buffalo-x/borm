@@ -1,7 +1,7 @@
 package mdb
 
 import (
-	"borm/bds"
+	"github.com/buffalo-x/borm/bds"
 	"reflect"
 )
 

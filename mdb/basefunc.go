@@ -1,11 +1,11 @@
 package mdb
 
 import (
-	"borm/bds"
-	"borm/mdb/mssql"
-	"borm/mdb/mysql"
-	"borm/mdb/postgresql"
 	"errors"
+	"github.com/buffalo-x/borm/bds"
+	"github.com/buffalo-x/borm/mdb/mssql"
+	"github.com/buffalo-x/borm/mdb/mysql"
+	"github.com/buffalo-x/borm/mdb/postgresql"
 	"reflect"
 	"strings"
 )
