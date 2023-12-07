@@ -1,12 +1,12 @@
 package bgen
 
 import (
-	"borm/bds"
-	"borm/bsql"
-	"borm/mdb"
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/buffalo-x/borm/bds"
+	"github.com/buffalo-x/borm/bsql"
+	"github.com/buffalo-x/borm/mdb"
 	"reflect"
 	"strconv"
 	"strings"

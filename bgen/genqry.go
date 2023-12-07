@@ -1,10 +1,10 @@
 package bgen
 
 import (
-	"borm/bsql"
-	"borm/mdb"
 	"database/sql"
 	"errors"
+	"github.com/buffalo-x/borm/bsql"
+	"github.com/buffalo-x/borm/mdb"
 )
 
 func (genDb *GenDB) Query(rows *bsql.Rows) (retGenDb *GenDB) {
