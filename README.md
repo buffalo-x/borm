@@ -195,6 +195,55 @@ We also have a traditional way to deal with database.
 			bsql.CV{"code": "33", "name": "cccs", "col_int":\ bsql.Expr("col_int+1")})_
 
 
+## multiple databases
+1. prepare sql option data\
+You can organize sqls like this. **id-》dbType+dbVersion-》sql**
+    ```json       
+    sqlMap := map[string]map[string]string{
+        "id1": {
+		"mysql": "select * from test_table",
+		"mssql": "select * from test_table",
+		"default": "select id,now() from test_table",
+		},
+		"id2":{
+			"mysql": "select id,now() from test_table",
+			"mssql": "select id,now() from test_table",
+			"default": "select id,now() from test_table",
+		},    
+	}
+    ```
+- "id1" and "id2" are ids
+- "mysql" and "mssql" are dbTypes
+- "default" is the option when no matchs
+
+2. add the option sql data to global map\    
+    _mdb.AddDsSqlOptionMap("test",sqlMap)\
+    Here "test" is a category.
+
+3. use the option data\
+    _var rs bsql.Rows\
+    bgen.Sql("opt^^test,id1^^demo sql").Query(&rs)_\
+    This will use the ds with name "default" to locate sql in group "id1" of category "test". \
+    If no match found, 
+    "default": "select id,now() from test_table" 
+    will be returned.
+
+    You can use like this to specify a datasource:\
+    _bgen.Db("ds1").Sql("opt^^test,id1^^demo sql").Query(&rs)_   
+
+    This will work in Where function. 
+
+    
+
+
+
+
+
+
+
+
+
+
 
 
 
