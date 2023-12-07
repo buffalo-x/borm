@@ -21,7 +21,7 @@ We are trying to create a very simple orm framework using the go language that c
 
 ## use bmod method
 
-1. Define the go structure of a database 
+1. Define the go structure of a database table 
 	```json
 	type TestTable struct {
 		Id          int64  `borm:"primaryKey;autoIncrement"`
@@ -35,7 +35,7 @@ We are trying to create a very simple orm framework using the go language that c
 		ColTs       time.Time `borm:"autoUpdateTime;"`
 	}
 	```
-	The accepted datatype is  string int int8 int16 int32 int64 float32 float64 bool time.Time \
+	The accepted datatype is  string int int8 int16 int32 int64 float32 float64 bool time.Time 
 	
 	borm tags :
 	- primaryKey : this is a primary key column\
@@ -116,7 +116,7 @@ or _bmod.Model(tb).Where("1=1").Rows("name,code")
 15. Use sql.Row as Output\
 _func (modDb *ModDB) Row(columnList ...string) (*sql.Rows, error)_\
 Youcan use _bmod.Model(tb).Where("1=1").Row()\
-or _bmod.Model(tb).Where("id>?",2).Row("name,code")\
+or _bmod.Model(tb).Where("id>?",2).Row("name,code")
 
 	
 
@@ -160,7 +160,7 @@ We also have a traditional way to deal with database.
 	_genMod:= bgen.Sql("insert into test_table(name,code) values(?,?)","mike","z11").Exec()_\
 	This will execute one insert sql. The following code has the same result.\
 	_args := []interface{}{"mike", "z11"}\
-	db1 := bgen.Sql("insert into test_table(name,code) values(?,?)",args).Exec()_\
+	db1 := bgen.Sql("insert into test_table(name,code) values(?,?)",args).Exec()_
 
 	We can create args like the following:\
 	_args := [][]interface{}{{"susan", "z01"}, {"jose", "z02"}}\
@@ -187,7 +187,7 @@ We also have a traditional way to deal with database.
 12. Update more columns\
 	_bgen.Sql("id=?", 23).\
 	UpdateColumns("test_table",\
-			bsql.CV{"code": "33", "name": "cccs", "col_int":\ bsql.Expr("col_int+1")})_\
+			bsql.CV{"code": "33", "name": "cccs", "col_int":\ bsql.Expr("col_int+1")})_
 
 
 
