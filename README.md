@@ -10,11 +10,11 @@ We are trying to create a very simple orm framework using the go language that c
 ## start to use borm
 1. _borm.Init()_ should be called in your project
 2. connect to a database, here,Taking MySQL as an example.\
-	_dsn :=  "root:XXX@tcp(local:3307)/db"\
+	_dsn :=  "root:XXX@tcp(127.0.0.1:3307)/db"\
 	sqlDb, err := sql.Open("mysql", dsn)_
 
 3. Add default database connection to datasource\
-	_bds.SetDs("default", sqlDb, "root", "","127.0.0.1",3306, "dbName", "","mysql", "version info", "more info")_\
+	_bds.SetDs("default", sqlDb, "root", "","127.0.0.1",3306, "db", "","mysql", "version info", "more info")_\
     Here, "mysql" is dsType\
     More connections can be added to the datasource, and they can be accessed by function\
 	_bds.GetDs(name string)(*Datasource)_\
@@ -201,9 +201,9 @@ You can organize sqls like this. **id-》dbType+dbVersion-》sql**
     ```json       
     sqlMap := map[string]map[string]string{
         "id1": {
-		"mysql": "select id,now() from test_table",
-		"mssql": "select id,getdate() from test_table",
-		"default": "select id,now() from test_table",
+		    "mysql": "select id,now() from test_table",
+		    "mssql": "select id,getdate() from test_table",
+		    "default": "select id,now() from test_table",
 		},
 		"id2":{
 			"mysql": "select id,left(name,5) from test_table",
@@ -230,7 +230,7 @@ You can organize sqls like this. **id-》dbType+dbVersion-》sql**
     You can use like this to specify a datasource:\
     _bgen.Db("ds1").Sql("opt^^test,id1^^demo sql").Query(&rs)_   
 
-    This will work in Where function. 
+    This also works in .Where function. 
 
     
 
