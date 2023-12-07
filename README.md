@@ -1,7 +1,7 @@
 # borm
 ## a small ORM for golang, simultaneously enhancing traditional access methods
 
-We are trying to create a very simple orm framework using the go language that can support traditional database operations and orm patterns. The focus of the project is to easily adapt to multiple databases.
+We are trying to create a very simple orm framework using the go language that can support traditional database operations and orm patterns. The focus of borm is to be easy to use and modify in your project.
 
 ## getting borm
 1. go get github.com/buffalo-x/borm
@@ -111,14 +111,14 @@ This means\ update test_table set col_int=col_int+1
 14. Use sql.Rows as Output\
 _func (modDb *ModDB) Rows(columnList ...string) (*sql.Rows, error)_\
 Youcan use\
- _bmod.Model(tb).Where("1=1").Rows()\
+ _bmod.Model(tb).Rows()\
 or\
- _bmod.Model(tb).Where("1=1").Rows("name,code")
+ _bmod.Model(tb).Where("id>1").Rows("name,code")
 
 15. Use sql.Row as Output\
-_func (modDb *ModDB) Row(columnList ...string) (*sql.Rows, error)_\
+_func (modDb *ModDB) Row(columnList ...string) (*sql.Row, error)_\
 Youcan use\
- _bmod.Model(tb).Where("1=1").Row()\
+ _bmod.Model(tb).Where("id>1").Row()\
 or\
  _bmod.Model(tb).Where("id>?",2).Row("name,code")
 
@@ -134,9 +134,28 @@ We also have a traditional way to deal with database.
 	_err := bgen.Sql("select * from test_table where id>?", 1).Query(&rs).Error()_\
      to find if error occured or not.
 
+	 bsql.Rows has the following definition，all data being stored as string.
+	 ```json
+	type Rows struct {
+		Count    int
+		Data     [][]string
+		ColsMap  map[string]int
+		ColsName []string
+	}
+	```
+
 2. Query table row\
 	_var rs bsql.Row\
 	genMod := bgen.Sql("select * from test_table where id>?", 1).First(&rs)_
+ 
+ 	bsql.Row has the following definition，all data being stored as string.
+	 ```json
+	type Row struct {
+		Data     []string
+		ColsMap  map[string]int
+		ColsName []string
+	}
+	```
 
 3. Specify a datasource\
 	_genMod := bgen.Db("ds1").Sql("select * from test_table where id>?", 1).First(&rs)_\
