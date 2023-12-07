@@ -1,6 +1,6 @@
 package borm
 
-import "borm/mdb"
+import "github.com/buffalo-x/borm/mdb"
 
 func Init() {
 	mdb.Init()
