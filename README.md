@@ -9,7 +9,7 @@ We are trying to create a very simple orm framework using the go language that c
 
 ## start to use borm
 1. _borm.Init()_ should be called in your project
-2. connect to a database, here,Taking MySQL as an example.\
+2. connect to a database, taking MySQL as an example.\
 	_dsn :=  "root:XXX@tcp(127.0.0.1:3307)/db"\
 	sqlDb, err := sql.Open("mysql", dsn)_
 
@@ -217,7 +217,7 @@ You can organize sqls like this. **id-》dbType+dbVersion-》sql**
 
 2. add the option sql data to global map\    
     _mdb.AddDsSqlOptionMap("test",sqlMap)\
-    Here "test" is a category.
+    Here, "test" is called a category.
 
 3. use the option data\
     _var rs bsql.Rows\
