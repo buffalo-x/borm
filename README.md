@@ -15,7 +15,8 @@ We are trying to create a very simple orm framework using the go language that c
 
 3. Add default database connection to datasource\
 	_bds.SetDs("default", sqlDb, "root", "","127.0.0.1",3306, "dbName", "","mysql", "version info", "more info")_\
-	More connections can be added to the datasource, and they can be accessed by function\
+    Here, "mysql" is dsType\
+    More connections can be added to the datasource, and they can be accessed by function\
 	_bds.GetDs(name string)(*Datasource)_\
 	DS with the name "default" should generally exist, otherwise it will increase code complexity. Because, if there is no explicit selection of ds, many functions default to using the ds with name of "default".
 
@@ -35,10 +36,10 @@ We are trying to create a very simple orm framework using the go language that c
 		ColTs       time.Time `borm:"autoUpdateTime;"`
 	}
 	```
-	The accepted datatype is  string int int8 int16 int32 int64 float32 float64 bool time.Time 
+	The accepted datatype is among [string int int8 int16 int32 int64 float32 float64 bool time.Time] 
 	
 	borm tags :
-	- primaryKey : this is a primary key column\
+	- primaryKey : this is a primary key column
 	- autoIncrement : only primary key has this tag and field datatype must be int64
 	- readonly : display data only
 	- excluded : not handled
@@ -200,14 +201,13 @@ You can organize sqls like this. **id-》dbType+dbVersion-》sql**
     ```json       
     sqlMap := map[string]map[string]string{
         "id1": {
-		"mysql": "select * from test_table",
-		"mssql": "select * from test_table",
+		"mysql": "select id,now() from test_table",
+		"mssql": "select id,getdate() from test_table",
 		"default": "select id,now() from test_table",
 		},
 		"id2":{
-			"mysql": "select id,now() from test_table",
-			"mssql": "select id,now() from test_table",
-			"default": "select id,now() from test_table",
+			"mysql": "select id,left(name,5) from test_table",
+			"mssql": "select id,substring(name,0,5) from test_table",
 		},    
 	}
     ```
