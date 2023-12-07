@@ -1,13 +1,13 @@
 # borm
-## a simple go orm 
+## a small ORM for golang, simultaneously enhancing traditional access methods
 
 We are trying to create a very simple orm framework using the go language that can support traditional database operations and orm patterns. The focus of the project is to easily adapt to multiple databases.
 
-## get borm
+## getting borm
 1. go get github.com/buffalo-x/borm
 2. download zip file and unzip to directoty github.com/buffalo-x/borm
 
-## start to use borm
+## starting to use borm
 1. _borm.Init()_ should be called in your project
 2. connect to a database, taking MySQL as an example.\
 	_dsn :=  "root:XXX@tcp(127.0.0.1:3307)/db"\
@@ -20,7 +20,7 @@ We are trying to create a very simple orm framework using the go language that c
 	_bds.GetDs(name string)(*Datasource)_\
 	DS with the name "default" should generally exist, otherwise it will increase code complexity. Because, if there is no explicit selection of ds, many functions default to using the ds with name of "default".
 
-## use bmod method
+## using bmod method
 
 1. Define the go structure of a database table 
 	```json
@@ -124,7 +124,7 @@ or\
 
 	
 
-## use bgen method
+## using bgen method
 We also have a traditional way to deal with database.
 
 1. Query table rows\
