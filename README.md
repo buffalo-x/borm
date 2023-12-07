@@ -1,7 +1,7 @@
 # borm
 ## a small ORM for golang, simultaneously enhancing traditional access methods
 
-We are trying to create a very simple orm framework using the go language that can support traditional database operations and orm patterns. The focus of borm is to be easy to use and modify in your project.
+We are trying to create a very simple orm framework using the go language that can support traditional database operations and orm patterns. The focus of borm is easy to use and modify in your project.
 
 ## getting borm
 1. go get github.com/buffalo-x/borm
