@@ -67,7 +67,7 @@ for example \
 	_func Db(dsName ...string) (retModDb *ModDB)_\
 	We can use it in this way.\
 	 _modDb := bmod.Db("ds1").Query(&rs)_\
-	This will choose a datasource with name of "ds1"
+	This will choose a datasource with name of "ds1",then query.
 
 6. Create a database record\
 	_tb := &TestTable{Code: "aa01"}\
