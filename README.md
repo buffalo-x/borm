@@ -75,7 +75,7 @@ for example \
 	You can also choose a datasource\
 	_modDb := bmod.Db("ds1").Create(tb)_
 
-7. Use Transaction
+7. Use Transaction\
 	_func Tx(tx *sql.Tx, dsName ...string) (retModDb *ModDB)_\
 	We can use it in this way.\
 	Firstly, you should create a *sql.Tx object. Then,\
@@ -83,8 +83,7 @@ for example \
 	This will create record using tx
 
 8. Save a database record\
-	_tb := &TestTable{Code: "aa01"}\
-	tb.Name="mike"\
+	_tb := &TestTable{Code: "aa01",name:"mike"}\	
 	modDb := bmod.Save(tb)_	
 
 9. Delete a database record\
