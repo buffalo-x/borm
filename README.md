@@ -195,7 +195,7 @@ We also have a traditional way to deal with database.
 			bsql.CV{"code": "33", "name": "cccs", "col_int":\ bsql.Expr("col_int+1")})_
 
 
-## multiple databases
+## multiple database sqls
 1. prepare sql option data\
 You can organize sqls like this. **id-》dbType+dbVersion-》sql**
     ```json       
