@@ -1,7 +1,7 @@
 package borm
 
-import "borm/m2db"
+import "borm/mdb"
 
 func Init() {
-	m2db.Ad_init()
+	mdb.Init()
 }
