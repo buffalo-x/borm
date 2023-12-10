@@ -1,3 +1,2 @@
-module github.com/go-sql-driver/mysql
-
+module github.com/buffalo-x/borm
 go 1.18
