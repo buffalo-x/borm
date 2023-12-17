@@ -44,8 +44,11 @@ func (genDb *GenDB) setErr(errFunc string, err error) {
 func (genDb *GenDB) GetErr() (error, string) {
 	return genDb.err, genDb.errFunc
 }
-func (genDb *GenDB) Error() error {
-	return genDb.err
+func (genDb *GenDB) Error() string {
+	if genDb.err == nil {
+		return ""
+	}
+	return genDb.err.Error()
 }
 func (genDb *GenDB) ErrorFunc() string {
 	return genDb.errFunc

@@ -7,33 +7,44 @@ import (
 	"github.com/buffalo-x/borm/mdb"
 )
 
-func (genDb *GenDB) Query(rows *bsql.Rows) (retGenDb *GenDB) {
-	retGenDb = genDb
+func (genDb *GenDB) Query() (retRows *bsql.Rows, retErr error) {
+
+	retRows = nil
+	retErr = nil
 	if genDb.err != nil {
+		retErr = genDb.err
 		return
 	}
+
 	if genDb.sqlStr == "" {
 		genDb.setErr("Query", errors.New("no sql"))
+		retErr = genDb.err
 		return
 	}
 	rs, err := genDb.execQry(genDb.sqlStr, genDb.sqlVars...)
 	if err == nil {
-		toErr := bsql.ToBsqlRows(rs, rows)
-		if toErr != nil {
-			genDb.setErr("Query", toErr)
+		retRows, err = bsql.FetchRowsE(rs)
+		if err != nil {
+			genDb.setErr("Query", err)
+			retErr = genDb.err
+			return
 		}
 	} else {
 		genDb.setErr("Query", err)
+		retErr = genDb.err
 	}
 	return
 }
-func (genDb *GenDB) First(row *bsql.Row) (retGenDb *GenDB) {
-	retGenDb = genDb
+func (genDb *GenDB) First() (retRow *bsql.Row, retErr error) {
+	retRow = nil
+	retErr = nil
 	if genDb.err != nil {
+		retErr = genDb.err
 		return
 	}
 	if genDb.sqlStr == "" {
 		genDb.setErr("First", errors.New("no sql"))
+		retErr = genDb.err
 		return
 	}
 	newSql, info := mdb.FirstRow(genDb.sqlStr, genDb.ds)
@@ -44,29 +55,35 @@ func (genDb *GenDB) First(row *bsql.Row) (retGenDb *GenDB) {
 
 	rs, err := genDb.execQry(newSql, genDb.sqlVars...)
 	if err == nil {
-		brow, toErr := bsql.FetchFirstRowE(rs)
-		if toErr != nil {
-			genDb.setErr("First", toErr)
-		} else {
-			*row = *brow
+		retRow, err = bsql.FetchFirstRowE(rs)
+		if err != nil {
+			genDb.setErr("First", err)
+			retErr = genDb.err
+			return
 		}
+		return
 	} else {
 		genDb.setErr("First", err)
+		retErr = genDb.err
 	}
 	return
 }
-func (genDb *GenDB) Value(value *string) (retGenDb *GenDB) {
-	retGenDb = genDb
+func (genDb *GenDB) Value() (retValue string, retErr error) {
+	retValue = ""
+	retErr = nil
 	if genDb.err != nil {
+		retErr = genDb.err
 		return
 	}
 	if genDb.sqlStr == "" {
 		genDb.setErr("Value", errors.New("no sql"))
+		retErr = genDb.err
 		return
 	}
 	newSql, info := mdb.FirstRow(genDb.sqlStr, genDb.ds)
 	if info != "" {
 		genDb.setErr("Value", errors.New(info))
+		retErr = genDb.err
 		return
 	}
 	rs, err := genDb.execQry(newSql, genDb.sqlVars...)
@@ -74,11 +91,14 @@ func (genDb *GenDB) Value(value *string) (retGenDb *GenDB) {
 		brow, toErr := bsql.FetchFirstRowE(rs)
 		if toErr != nil {
 			genDb.setErr("Value", toErr)
+			retErr = genDb.err
+			return
 		} else {
-			*value = brow.Data[0]
+			retValue = brow.Data[0]
 		}
 	} else {
 		genDb.setErr("Value", err)
+		retErr = genDb.err
 	}
 	return
 }
