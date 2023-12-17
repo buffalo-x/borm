@@ -204,3 +204,7 @@ func (rows *Rows) GetValueE(rowNo int, colName string) (string, error) {
 		return val, nil
 	}
 }
+
+func (rows *Rows) GetData() [][]string {
+	return rows.Data
+}
