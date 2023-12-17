@@ -12,16 +12,23 @@ import (
 	"strings"
 )
 
-func (genDb *GenDB) Exec() (retGenDb *GenDB) {
-	retGenDb = genDb
+func (genDb *GenDB) Exec() (res *bsql.Result, err error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			genDb.setErr("Exec", errors.New("Panic happend:"+fmt.Sprintf("%v", r)))
+			err = genDb.err
+			res = &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}
+		}
+	}()
+
 	if genDb.err != nil {
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 	}
 	if genDb.sqlStr == "" {
 		genDb.setErr("Exec", errors.New("no sql"))
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 	}
-
 	args := genDb.sqlVars
 	//no parameter or multi parameters
 	if len(args) == 0 || len(args) > 1 {
@@ -32,7 +39,7 @@ func (genDb *GenDB) Exec() (retGenDb *GenDB) {
 			genDb.RowsAffected, _ = result.RowsAffected()
 			genDb.LastInsertId, _ = result.LastInsertId()
 		}
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 	}
 
 	arg := args[0]
@@ -46,7 +53,7 @@ func (genDb *GenDB) Exec() (retGenDb *GenDB) {
 			genDb.RowsAffected, _ = result.RowsAffected()
 			genDb.LastInsertId, _ = result.LastInsertId()
 		}
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 	}
 
 	//if the only parameter is  a 1-d slice
@@ -58,15 +65,15 @@ func (genDb *GenDB) Exec() (retGenDb *GenDB) {
 			genDb.RowsAffected, _ = result.RowsAffected()
 			genDb.LastInsertId, _ = result.LastInsertId()
 		}
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 	}
 
 	if strings.Index(argType, "[][]interface") != 0 {
 		genDb.setErr("Exec", errors.New("parameter error"))
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 	}
 	//if the only parameter is  a 2-d slice
-	var err error
+
 	var stmt *sql.Stmt
 	if genDb.sqlDb != nil {
 		stmt, err = genDb.sqlDb.Prepare(genDb.sqlStr)
@@ -75,45 +82,61 @@ func (genDb *GenDB) Exec() (retGenDb *GenDB) {
 	}
 	if err != nil {
 		genDb.setErr("Stmt", err)
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 	}
 	defer stmt.Close()
 	for i, vArg := range arg.([][]interface{}) {
 		result, err := stmt.Exec(vArg...)
 		if err != nil {
 			genDb.setErr("Stmt", errors.New("line "+strconv.Itoa(i+1)+" Error:"+err.Error()))
-			return
+			return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 		} else {
-			genDb.RowsAffected, _ = result.RowsAffected()
+			affected, err := result.RowsAffected()
+			if err != nil {
+				genDb.setErr("Stmt", errors.New("line "+strconv.Itoa(i+1)+" Error:"+err.Error()))
+				return nil, genDb.err
+			}
+			genDb.RowsAffected = genDb.RowsAffected + affected
 			genDb.LastInsertId, _ = result.LastInsertId()
 		}
 	}
-
-	return
+	return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 }
-func (genDb *GenDB) Batch(sqls []bsql.BatchSql) (retGenDb *GenDB) {
-	retGenDb = genDb
+func (genDb *GenDB) Batch(sqls []bsql.BatchSql) (res *bsql.Result, err error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			genDb.setErr("Batch", errors.New("Panic happend:"+fmt.Sprintf("%v", r)))
+			err = genDb.err
+			res = &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}
+		}
+	}()
+
 	if genDb.err != nil {
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 	}
 	for i, batSql := range sqls {
-
 		sqlStr, err := mdb.SqlOption(genDb.ds, batSql.Sql)
 		if err != nil {
 			genDb.setErr("Batch", errors.New("line "+strconv.Itoa(i+1)+" Error:"+err.Error()))
-			return
+			return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 		}
 
 		result, err := genDb.execSql(sqlStr, batSql.Args...)
 		if err != nil {
 			genDb.setErr("Batch", errors.New("line "+strconv.Itoa(i+1)+" Error:"+err.Error()))
-			return
+			return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 		} else {
-			genDb.RowsAffected, _ = result.RowsAffected()
+			affected, err := result.RowsAffected()
+			if err != nil {
+				genDb.setErr("Stmt", errors.New("line "+strconv.Itoa(i+1)+" Error:"+err.Error()))
+				return nil, genDb.err
+			}
+			genDb.RowsAffected = genDb.RowsAffected + affected
 			genDb.LastInsertId, _ = result.LastInsertId()
 		}
 	}
-	return
+	return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 }
 func (genDb *GenDB) execSql(sqlStr string, args ...interface{}) (sql.Result, error) {
 	if genDb.sqlDb != nil {
@@ -122,34 +145,31 @@ func (genDb *GenDB) execSql(sqlStr string, args ...interface{}) (sql.Result, err
 		return genDb.sqlTx.Exec(sqlStr, args...)
 	}
 }
-func Batch(sqls []bsql.BatchSql) (genDb *GenDB) {
-	genDb = &GenDB{}
+func Batch(sqls []bsql.BatchSql) (*bsql.Result, error) {
+	genDb := &GenDB{}
 	name := "default"
 	ds := bds.GetDs(name)
 	if ds == nil {
 		genDb.setErr("Batch", errors.New("no ds found :"+name))
-		return
 	}
 	genDb.sqlDb = ds.SqlDb
 	genDb.ds = ds
-	genDb.Batch(sqls)
-	return
+	return genDb.Batch(sqls)
 }
 
-func (genDb *GenDB) Create(tableName string, columnValueMap bsql.CV) (retGenDb *GenDB) {
-	retGenDb = genDb
-	if genDb.err != nil {
-		return
-	}
-	name := "default"
-	ds := bds.GetDs(name)
-	if ds == nil {
-		genDb.setErr("Create", errors.New("no ds found :"+name))
-		return
-	}
-	genDb.sqlDb = ds.SqlDb
-	genDb.ds = ds
+func (genDb *GenDB) Create(tableName string, columnValueMap bsql.CV) (res *bsql.Result, err error) {
 
+	defer func() {
+		if r := recover(); r != nil {
+			genDb.setErr("Create", errors.New("Panic happend:"+fmt.Sprintf("%v", r)))
+			err = genDb.err
+			res = &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}
+		}
+	}()
+
+	if genDb.err != nil {
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
+	}
 	sqlValues := make([]interface{}, 0, 5)
 	sqlStr := "insert into " + tableName + " ( "
 	sqlExprs := " values("
@@ -169,46 +189,58 @@ func (genDb *GenDB) Create(tableName string, columnValueMap bsql.CV) (retGenDb *
 		i++
 	}
 	sqlStr = sqlStr + ")" + sqlExprs + ")"
-	result, err := genDb.execSql(sqlStr, sqlValues...)
-	if err != nil {
-		genDb.setErr("Create", err)
+	result, e := genDb.execSql(sqlStr, sqlValues...)
+	if e != nil {
+		genDb.setErr("Create", e)
 	} else {
 		genDb.LastInsertId, _ = result.LastInsertId()
 		genDb.RowsAffected, _ = result.RowsAffected()
 	}
-	return
+	return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 }
-func Create(tableName string, columnValueMap bsql.CV) (genDb *GenDB) {
-	genDb = &GenDB{}
-	genDb.Create(tableName, columnValueMap)
-	return
+
+func Create(tableName string, columnValueMap bsql.CV) (*bsql.Result, error) {
+	genDb := &GenDB{}
+	name := "default"
+	ds := bds.GetDs(name)
+	if ds == nil {
+		genDb.setErr("Batch", errors.New("no ds found :"+name))
+	}
+	genDb.sqlDb = ds.SqlDb
+	genDb.ds = ds
+	return genDb.Create(tableName, columnValueMap)
 }
-func (genDb *GenDB) Update(tableName, column string, value interface{}) (retGenDb *GenDB) {
-	retGenDb = genDb
+
+func (genDb *GenDB) Update(tableName, column string, value interface{}) (res *bsql.Result, err error) {
+
 	defer func() {
 		if r := recover(); r != nil {
 			genDb.setErr("Update", errors.New("Panic happend:"+fmt.Sprintf("%v", r)))
+			err = genDb.err
+			res = &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}
 		}
 	}()
 
 	if genDb.err != nil {
-		return
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 	}
+
 	if genDb.ds == nil {
 		dsName := "default"
 		ds := bds.GetDs(dsName)
 		if ds == nil {
 			genDb.setErr("Update", errors.New("no ds found :"+dsName))
-			return
+			return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 		}
 		genDb.sqlDb = ds.SqlDb
 		genDb.ds = ds
 	}
 
 	if genDb.sqlStr == "" {
-		genDb.setErr("Update", errors.New("no sql"))
-		return
+		genDb.setErr("Update", errors.New("no where sql"))
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 	}
+
 	sqlValues := make([]interface{}, 0, 5)
 	sqlStr := "update " + tableName + " set " + column + "="
 
@@ -219,7 +251,7 @@ func (genDb *GenDB) Update(tableName, column string, value interface{}) (retGenD
 		exprValue := value.(*bsql.SqlExpr)
 		if exprValue.Err != nil {
 			genDb.setErr("Update", errors.New("parameter err :"+exprValue.Err.Error()))
-			return
+			return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 		}
 		sqlStr = sqlStr + exprValue.Result
 	} else {
@@ -230,41 +262,33 @@ func (genDb *GenDB) Update(tableName, column string, value interface{}) (retGenD
 	sqlStr = sqlStr + " where " + genDb.sqlStr
 	sqlValues = append(sqlValues, genDb.sqlVars...)
 
-	result, err := genDb.execSql(sqlStr, sqlValues...)
-	if err != nil {
-		genDb.setErr("Update", err)
+	result, e := genDb.execSql(sqlStr, sqlValues...)
+	if e != nil {
+		genDb.setErr("Update", e)
 	} else {
 		genDb.LastInsertId, _ = result.LastInsertId()
 		genDb.RowsAffected, _ = result.RowsAffected()
 	}
-	return
+	return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 }
 
-func (genDb *GenDB) UpdateColumns(tableName string, columnValueMap bsql.CV) (retGenDb *GenDB) {
-	retGenDb = genDb
+func (genDb *GenDB) UpdateColumns(tableName string, columnValueMap bsql.CV) (res *bsql.Result, err error) {
+
 	defer func() {
 		if r := recover(); r != nil {
 			genDb.setErr("Update", errors.New("Panic happend:"+fmt.Sprintf("%v", r)))
+			err = genDb.err
+			res = &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}
 		}
 	}()
 
 	if genDb.err != nil {
-		return
-	}
-	if genDb.ds == nil {
-		dsName := "default"
-		ds := bds.GetDs(dsName)
-		if ds == nil {
-			genDb.setErr("Update", errors.New("no ds found :"+dsName))
-			return
-		}
-		genDb.sqlDb = ds.SqlDb
-		genDb.ds = ds
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 	}
 
 	if genDb.sqlStr == "" {
-		genDb.setErr("Update", errors.New("no sql"))
-		return
+		genDb.setErr("Update", errors.New("no where sql"))
+		return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 	}
 
 	sqlValues := make([]interface{}, 0, 5)
@@ -281,7 +305,7 @@ func (genDb *GenDB) UpdateColumns(tableName string, columnValueMap bsql.CV) (ret
 			exprValue := value.(*bsql.SqlExpr)
 			if exprValue.Err != nil {
 				genDb.setErr("Update", errors.New("parameter err :"+exprValue.Err.Error()))
-				return
+				return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, nil
 			}
 			sqlStr = sqlStr + column + "=" + exprValue.Result
 		} else {
@@ -294,12 +318,12 @@ func (genDb *GenDB) UpdateColumns(tableName string, columnValueMap bsql.CV) (ret
 	sqlStr = sqlStr + " where " + genDb.sqlStr
 	sqlValues = append(sqlValues, genDb.sqlVars...)
 
-	result, err := genDb.execSql(sqlStr, sqlValues...)
-	if err != nil {
-		genDb.setErr("Update", err)
+	result, e := genDb.execSql(sqlStr, sqlValues...)
+	if e != nil {
+		genDb.setErr("Update", e)
 	} else {
 		genDb.LastInsertId, _ = result.LastInsertId()
 		genDb.RowsAffected, _ = result.RowsAffected()
 	}
-	return
+	return &bsql.Result{LastInsertId: genDb.LastInsertId, RowsAffected: genDb.RowsAffected}, genDb.err
 }
