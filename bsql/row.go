@@ -205,6 +205,7 @@ func (rows *Rows) GetValueE(rowNo int, colName string) (string, error) {
 	}
 }
 
-func (rows *Rows) GetData() [][]string {
-	return rows.Data
+type Result struct {
+	LastInsertId int64
+	RowsAffected int64
 }
